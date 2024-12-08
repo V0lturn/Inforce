@@ -1,0 +1,13 @@
+﻿<h1>Description of Url Shortener algorithm.</h1>
+
+<p style="font-size: 24px">1) User submits a request to generate short url for the long url: https://www.example.com/some/very/long/url/that/needs/to/be/shortened</p>
+<p style="font-size: 24px">2) Generate an MD5 hash of the long URL. MD5 produces a 128-bit hash, typically a 32-character hexadecimal string: 1b3aabf5266b0f178f52e45f4bb430eb</p>
+<p style="font-size: 24px">3) Instead of encoding the entire 128-bit hash, we typically use a portion of the hash (e.g., the first few bytes) to create a more manageable short URL.</p>
+<p style="font-size: 24px">4) First 6 bytes of the hash: 1b3aabf5266b</p>
+<p style="font-size: 24px">5) Convert these bytes to decimal: 1b3aabf5266b (hexadecimal) → 47770830013755 (decimal)</p>
+<p style="font-size: 24px">6) Encode the result into a Base62 encoded string: DZFbb43</p>
+
+
+
+
+

@@ -1,0 +1,131 @@
+﻿@using System.Linq
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+@model IEnumerable<Inforce_Task.Models.Entities.Url>
+
+@{
+    ViewData["Title"] = "SHORT URLS TABLE";
+
+}
+
+<div class="text-center">
+    <h1 class="display-4">Short URLS Table</h1>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div>
+            <form id="add-url-form">
+                <div>
+                    <label for="link">URL:</label>
+                    <input type="url" id="link" name="link" required placeholder="https://example.com" autocomplete="off" />
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+
+        <div>
+            <form id="delete-url-form">
+                <div>
+                    <label for="linkToDelete">URL to delete:</label>
+                    <input type="text" id="linkToDelete" name="linkToDelete" required autocomplete="off" />
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+
+    }
+
+    <h1 id="no-data-message" style="color: red; display: @(Model != null && Model.Any() ? "none" : "block")">
+        No data available
+    </h1>
+
+    <table class="table table-striped" id="url-table" style="display: @(Model != null && Model.Any() ? "table" : "none")">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Short URL</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var url in Model)
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("ShortUrlInfo", "Url", new { link = url.UrlText })" target="_blank" rel="noopener noreferrer">
+                            @url.UrlText
+                        </a>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("RedirectToUrl", "Url", new { shortUrl = url.ShortenUrl })" target="_blank" rel="noopener noreferrer">
+                            @url.ShortenUrl
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#add-url-form').on('submit', function (e) {
+            e.preventDefault();
+
+            const link = $('#link').val();
+
+            $.post('/Url/ShortUrl', { link }, function (response) {
+                alert(response.message);
+                updateTable(response.data);
+            }).fail(function () {
+                alert('Error adding URL');
+            }).always(function () {
+                $('#link').val('');
+            });
+        });
+
+        $('#delete-url-form').on('submit', function (e) {
+            e.preventDefault();
+
+            const linkToDelete = $('#linkToDelete').val();
+
+            $.post('/Url/DeleteUrl', { linkToDelete }, function (response) {
+                alert(response.message);
+                updateTable(response.data);
+            }).fail(function () {
+                alert('Error deleting URL');
+            }).always(function () {
+                $('#linkToDelete').val('');
+            });
+        });
+
+        function updateTable(data) {
+            const tableBody = $('#url-table tbody');
+            tableBody.empty();
+
+            if (data.length === 0) {
+                $('#url-table').hide();
+                $('#no-data-message').show();
+            } else {
+                $('#no-data-message').hide();
+                $('#url-table').show();
+                data.forEach(url => {
+                    tableBody.append(
+                        `<tr>
+                        <td>
+                            <a href="/Url/ShortUrlInfo?link=${url.urlText}" target="_blank" rel="noopener noreferrer">
+                                ${url.urlText}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Url/RedirectToUrl?shortUrl=${url.shortenUrl}" target="_blank" rel="noopener noreferrer">
+                                ${url.shortenUrl}
+                            </a>
+                        </td>
+                    </tr>`
+                    );
+                });
+            }
+        }
+    });
+</script>
+
